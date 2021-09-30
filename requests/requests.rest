@@ -1,0 +1,22 @@
+POST http://localhost:3003/api/blogs HTTP/1.1
+content-type: application/json
+
+{
+    "title": "Blog entry 3",
+    "author": "Henrique 3", 
+    "url": "url do blog 3",
+    "likes": 333
+}
+
+###
+
+DELETE http://localhost:3003/api/blogs/615645ecc0f1ddf7214f1595 HTTP/1.1
+
+###
+
+PUT http://localhost:3003/api/blogs/615645e0c0f1ddf7214f1592 HTTP/1.1
+content-type: application/json
+
+{
+    "author": "updated author"
+}
