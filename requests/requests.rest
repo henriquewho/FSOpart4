@@ -20,3 +20,13 @@ content-type: application/json
 {
     "author": "updated author"
 }
+
+### 
+POST http://localhost:3003/api/users HTTP/1.1
+content-type: application/json
+
+{
+    "name": "user2 name",
+    "username": "user2", 
+    "password": "pas"
+}
