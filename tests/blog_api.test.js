@@ -12,50 +12,101 @@ const app = require('../app');
 const api = supertest(app); 
 const helper = require('./test_helper')
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const bcrypt = require('bcrypt')
 
-beforeEach ( async ()=>{
-    await Blog.deleteMany({}); 
-    const blogObjects = helper.initialBlogs.map(each => new Blog(each)); 
-    const promiseArray = blogObjects.map (each => each.save()); 
-    await Promise.all(promiseArray); 
-},100000)
+describe('test only blogs', ()=>{
+    
+    beforeEach ( async ()=>{
+        await Blog.deleteMany({}); 
+        const blogObjects = helper.initialBlogs.map(each => new Blog(each)); 
+        const promiseArray = blogObjects.map (each => each.save()); 
+        await Promise.all(promiseArray); 
+    },100000)
 
-test ('blogs are returned as json', async () => {
-    await api.get('/api/blogs')
-    .expect(200).expect('Content-Type', /application\/json/);
-});
+    test ('blogs are returned as json', async () => {
+        await api.get('/api/blogs')
+        .expect(200).expect('Content-Type', /application\/json/);
+    });
 
-test ('verifies that the identifier is named id', async () => {
-    const blogs = await api.get('/api/blogs');
-    expect(blogs.body[0].id).toBeDefined(); 
+    test ('verifies that the identifier is named id', async () => {
+        const blogs = await api.get('/api/blogs');
+        expect(blogs.body[0].id).toBeDefined(); 
+    })
+
+    test ('verifies that creating a note works', async () => {
+        const newBlog = {
+            title: 'new blog', author: 'new author', url: 'new url', likes: 33
+        }
+        await api.post('/api/blogs').send(newBlog).expect(200).expect('Content-Type', /application\/json/); 
+
+        const blogsEnd = await helper.blogsInDb(); 
+        expect(blogsEnd.length).toBe(helper.initialBlogs.length + 1); 
+    })
+
+    test ('verifies that if likes is missing it defaults to 0', async () => {
+        const newBlog = {
+            title: 'new blog', author: 'new author', url: 'new url'   
+        }
+        await api.post('/api/blogs').send(newBlog).expect(200).expect('Content-Type', /application\/json/); 
+        const blogsEnd = await helper.blogsInDb(); 
+        expect(blogsEnd[blogsEnd.length-1].likes).toBe(0); 
+    })
+
+    test ('verifies that if title and url are missing it responds with 400', async()=>{
+        const newBlog = {
+            author: 'new author', likes: 9
+        }
+        await api.post('/api/blogs').send(newBlog)
+        .expect(400); 
+    })
+    afterAll ( ()=>{
+        mongoose.connection.close(); 
+    })
 })
 
-test ('verifies that creating a note works', async () => {
-    const newBlog = {
-        title: 'new blog', author: 'new author', url: 'new url', likes: 33
-    }
-    await api.post('/api/blogs').send(newBlog).expect(200).expect('Content-Type', /application\/json/); 
+describe ('test only users', ()=>{
 
-    const blogsEnd = await helper.blogsInDb(); 
-    expect(blogsEnd.length).toBe(helper.initialBlogs.length + 1); 
+    beforeEach(async () => {
+        await User.deleteMany({})
+    
+        const passwordHash = await bcrypt.hash('sekret', 10)
+        const user = new User({ username: 'root', passwordHash })
+    
+        await user.save()
+    }, 100000)
+
+    test('invalid user is not created', async ()=>{
+        const usersStart = await helper.usersInDb(); 
+        
+        const newUser = {
+            name: 'newUser', username: 'X', password: 'X'
+        }
+        const resp = await api.post('/api/users').send(newUser).expect(400); 
+
+        const usersEnd = await helper.usersInDb(); 
+        //console.log('lengths: ', usersStart.length, usersEnd.length);
+        expect(usersStart.length).toBe(usersEnd.length); 
+    })
+
+    test ('valid user is created', async ()=>{
+        const usersStart = await helper.usersInDb(); 
+
+        const newUser = {
+            name: 'newUser', username: 'newUser', password: 'password'
+        }
+        const resp = await api.post('/api/users').send(newUser).expect(200); 
+
+        const usersEnd = await helper.usersInDb(); 
+        expect(usersEnd.length).toBe(usersStart.length + 1); 
+    })
+  
+    
+    afterAll ( ()=>{
+        mongoose.connection.close(); 
+    })
 })
 
-test ('verifies that if likes is missing it defaults to 0', async () => {
-    const newBlog = {
-        title: 'new blog', author: 'new author', url: 'new url'   
-    }
-    await api.post('/api/blogs').send(newBlog).expect(200).expect('Content-Type', /application\/json/); 
-    const blogsEnd = await helper.blogsInDb(); 
-    expect(blogsEnd[blogsEnd.length-1].likes).toBe(0); 
-})
-
-test ('verifies that if title and url are missing it responds with 400', async()=>{
-    const newBlog = {
-        author: 'new author', likes: 9
-    }
-    await api.post('/api/blogs').send(newBlog)
-    .expect(400); 
-})
 
 afterAll ( ()=>{
     mongoose.connection.close(); 
