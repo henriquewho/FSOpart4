@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 blogsRouter.get('/info', (request, response)=>{
   response.send('This is the blog backend app')
@@ -11,10 +12,20 @@ blogsRouter.get('/', (request, response) => {
   })
 })
 
-blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
-  const returned = await blog.save(); 
-  response.status(200).json(returned);
+blogsRouter.post('/', async (request, response)=>{
+  const defaultUser = await User.findById('615b3f14b4c48aae6b296079');
+  const body = request.body; 
+
+  const blog = new Blog({
+    title: body.title, author: body.author, 
+    url: body.url, like: body.likes, 
+    user: defaultUser._id
+  })
+
+  const savedBlog = await blog.save(); 
+  defaultUser.blogs = defaultUser.blogs.concat(savedBlog._id); 
+  let savedUser = await defaultUser.save();
+  response.json(savedBlog);
 })
 
 blogsRouter.delete('/:id', async (request, response) => {

@@ -18,7 +18,12 @@ usersRouter.post ('/', async (request, response) => {
         return response.status(400).send({
             error: 'password must be at least 4 chars long'
         })
+    } else if (body.username.length < 4) {
+        return response.status(400).send({
+            error: 'username must be at least 4 chars long'
+        })
     }
+    
     const passwordHash = await bcrypt.hash(body.password, 10); 
 
     const user = new User ({
