@@ -8,6 +8,14 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
+const tokenExtractor = (request, response, next) => {
+  const auth = request.get('authorization'); 
+  if (auth && auth.toLowerCase().startsWith('bearer ')){
+    request.token = auth.substring(7);
+  }
+  next()
+}
+
 const unknownEndpoint = (request, response) => {
   if (request.path=='/info'){
     response.send('This is the blog backend app')
@@ -31,5 +39,6 @@ const errorHandler = (error, request, response, next) => {
 module.exports = {
   requestLogger,
   unknownEndpoint,
-  errorHandler
+  errorHandler, 
+  tokenExtractor
 }

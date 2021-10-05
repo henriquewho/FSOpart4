@@ -1,12 +1,12 @@
 POST http://localhost:3003/api/blogs HTTP/1.1
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWQiOiI2MTViNDAwYWU4ZmNiNzJmNDI2NzI5NzciLCJpYXQiOjE2MzM0NTM1ODJ9.FPpEC1Q8mNVOLViHJHq8AkQBIxWlc2H3NvmAZ9PqFHE
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIxIiwiaWQiOiI2MTViM2YxNGI0YzQ4YWFlNmIyOTYwNzkiLCJpYXQiOjE2MzM0NTQ5NDZ9.AX8gY_LN2oDZECsYdTxC920Kp22Bu6Z6uuvGxtR9snk
 
 {
-    "title": "with token",
-    "author": "with token", 
-    "url": "with token",
-    "likes": 234
+    "title": "with token aaa",
+    "author": "with token aaa", 
+    "url": "with token aaa",
+    "likes": 2343
 }
 
 ###
@@ -37,6 +37,6 @@ POST http://localhost:3003/api/login HTTP/1.1
 content-type: application/json
 
 {
-    "username": "user2", 
+    "username": "user1", 
     "password": "pass"
 }

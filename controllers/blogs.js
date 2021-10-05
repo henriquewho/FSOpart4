@@ -3,15 +3,6 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
-// Just gets the token str from the request authorization
-const getTokenFrom = request => {
-  const auth = request.get('authorization'); 
-  if (auth && auth.toLowerCase().startsWith('bearer ')){
-    return auth.substring(7); 
-  }
-  return null; 
-}
-
 blogsRouter.get('/info', (request, response)=>{
   response.send('This is the blog backend app')
 })
@@ -30,9 +21,7 @@ blogsRouter.post('/', async (request, response)=>{
 
   const body = request.body; 
 
-  const token = getTokenFrom(request); 
-  console.log('secret: ', process.env.SECRET);
-  console.log('token: ', token);
+  const token = request.token; 
 
   const decodedToken = jwt.verify(token, process.env.SECRET);
   if (!token || !decodedToken.id){
@@ -66,8 +55,6 @@ blogsRouter.delete('/:id', async (request, response) => {
 blogsRouter.put('/:id', async (request, response) => {
   const id = request.params.id; 
   const newBlog = request.body; 
-
-  console.log('id and newBlog: ', id, newBlog);
 
   let updatedBlog = await Blog.findById(id); 
   for (let key in newBlog) {
