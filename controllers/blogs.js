@@ -4,7 +4,7 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
 blogsRouter.get('/info', (request, response)=>{
-  response.send('This is the blog backend app')
+  response.send('This is the blogs backend')
 })
 
 blogsRouter.get('/', async (request, response) => {
@@ -16,18 +16,16 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response)=>{
-  //const defaultUser = await User.findById('615b3f14b4c48aae6b296079');
-
 
   const body = request.body; 
 
   const token = request.token; 
+  const userPost = request.user; 
 
-  const decodedToken = jwt.verify(token, process.env.SECRET);
-  if (!token || !decodedToken.id){
+  if (!token || !userPost){
     return response.status(401).json({error: 'token missing or invalid'})
   }
-  const defaultUser = await User.findById(decodedToken.id);
+  const defaultUser = await User.findById(userPost);
 
   const blog = new Blog({
     title: body.title, author: body.author, 
@@ -46,9 +44,9 @@ blogsRouter.delete('/:id', async (request, response) => {
   const toDelete = await Blog.findById(id); 
   const userCreated = toDelete.user; 
   const token = request.token;    // using middleware
-  const decodedToken = jwt.verify(token, process.env.SECRET)
+  const userDelete = request.user; 
 
-  if (!token || !decodedToken.id || decodedToken.id != userCreated.toString()){
+  if (!token || !userDelete || userDelete != userCreated.toString()){
     return response.status(401).json({error:'token missing or invalid'})
   }
 
