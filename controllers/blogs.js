@@ -2,6 +2,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { update } = require('../models/blog')
 
 blogsRouter.get('/info', (request, response)=>{
   response.send('This is the blogs backend')
@@ -60,6 +61,17 @@ blogsRouter.delete('/:id', async (request, response) => {
 
 blogsRouter.put('/:id', async (request, response) => {
   const id = request.params.id; 
+
+  const userPost = request.user; 
+
+  const oldBlog = await Blog.findById(id);
+  oldBlog.likes++; 
+
+  const resp = await oldBlog.save();
+  return response.json(resp); 
+
+  /*
+  const id = request.params.id; 
   const newBlog = request.body; 
 
   let updatedBlog = await Blog.findById(id); 
@@ -69,11 +81,13 @@ blogsRouter.put('/:id', async (request, response) => {
     }
   }
 
-  /* the example from part3 used findByIdAndUpdate, 
-  look for the difference in using save(). Apparently 
-  the result is the same */
+  // the example from part3 used findByIdAndUpdate, 
+  // look for the difference in using save(). Apparently 
+  // the result is the same
+
   let result = await updatedBlog.save(); 
   response.json(result); 
+  */
 })
 
 module.exports = blogsRouter
