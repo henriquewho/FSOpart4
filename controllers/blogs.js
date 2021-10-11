@@ -41,11 +41,14 @@ blogsRouter.post('/', async (request, response)=>{
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
+
   const id = request.params.id;   // id of the blog
   const toDelete = await Blog.findById(id); 
   const userCreated = toDelete.user; 
   const token = request.token;    // using middleware
   const userDelete = request.user; 
+
+  console.log('token, userDelete, userCreated: ', token, userDelete, userCreated.toString());
 
   if (!token || !userDelete || userDelete != userCreated.toString()){
     return response.status(401).json({error:'token missing or invalid'})
@@ -57,7 +60,10 @@ blogsRouter.delete('/:id', async (request, response) => {
   } else {
     response.status(404).send({error:'The blog wasnt found'});
   }
+
 })
+
+
 
 blogsRouter.put('/:id', async (request, response) => {
   const id = request.params.id; 
